@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # This name uniquely identifies the Deployment
+  name: covidsim-model
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: covidsim-model # has to match .spec.template.metadata.labels
+  strategy:
+    # Specifies the strategy used to replace old Pods by new ones
+    # Refer: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        # This label is used as a selector in Service definition
+        app: covidsim-model
+    spec:
+      containers:
+      - name: covidsim-model
+        # Volume mounts for this container
+        # Pulls the lastest Minio image from Docker Hub
+        image: ghcr.io/thibaultsmnt/covidsim.model:99fded48bb18aae327f1fd9fb0abfffc7d58e8c2
+        ports:
+        - containerPort: 80

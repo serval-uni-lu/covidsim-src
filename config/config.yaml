@@ -1,0 +1,78 @@
+common:
+  datasets:
+    oxford:
+      url: https://raw.githubusercontent.com/OxCGRT/covid-policy-tracker/master/data/timeseries/OxCGRT_timeseries_all.xlsx
+      raw: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/oxford_pandemic_measures/OxCGRT_timeseries_all.xlsx
+      processed: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/oxford.csv
+    cases_death:
+      url:
+        cases: https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv
+        deaths: https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv
+      raw:
+        cases: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/jhu_confirmed_death/time_series_covid19_confirmed_global.csv
+        deaths: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/jhu_confirmed_death/time_series_covid19_deaths_global.csv
+      processed: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/confirmed_cases.csv
+    gmobility:
+      url: https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv
+      raw: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/Global_Mobility_Report.csv
+      processed: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/gmobility.csv
+    demographic:
+      raw: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/demographic
+      processed: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/demographic.csv
+    country_metrics:
+      raw: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/metrics_country.csv
+      processed: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/country_metrics.csv
+    rt_estimation:
+      processed: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/rt_estimation.csv
+    features:
+      processed: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/features.csv
+    ml:
+      processed: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/ml
+
+  paths:
+    oxford: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/oxford_pandemic_measures/OxCGRT_timeseries_all.xlsx
+    gmobility: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/Global_Mobility_Report.csv
+    country_metrics: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/metrics_country.csv
+    population: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/demographic
+    features: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/features.csv
+    seirhcd: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/seirhcd.csv
+    ml_features: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/ml_features.csv
+    test_rt_luxembourg: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/test/luxembourg_rt.csv
+
+estimate_rt:
+  countries:
+    allow: '*'
+    deny:
+      - France
+      - Turkey
+      - Nicaragua
+      - Fiji
+      - Tanzania
+      - Peru
+      - Tajikistan
+      - Thailand
+      - Sweden
+      - Afghanistan
+      - Kyrgyzstan
+
+visualise_rt_prediction:
+  visualisation_dir: ./doc/validation/rt_prediction
+  ground_truth_dir: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/test
+  countries:
+    - Luxembourg
+
+split_data:
+  seed: 2003
+  test_size: 0.2
+  target: R
+  dir: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/ml
+
+train_model:
+  iterations: 5
+  cross_validation: 3
+  paths:
+    model: ./models/model.joblib
+    scaler: ./models/scaler.joblib
+    report: ./models/report.json
+
+

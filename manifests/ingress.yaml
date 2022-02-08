@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: covidsim-model-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 10g
+spec:
+  rules:
+  - host: model.covidsim.prod
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: covidsim-model-service
+            port:
+              number: 9001
