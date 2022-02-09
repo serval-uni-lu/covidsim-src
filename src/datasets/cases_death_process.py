@@ -1,5 +1,5 @@
 import logging
-from covidsim_model.src.utils.config_loader import get_config
+from src.utils.config_loader import get_config
 import pandas as pd
 
 LOGGER = logging.getLogger()
@@ -13,7 +13,7 @@ def __load_jhu(path) -> pd.DataFrame:
     return df.transpose()
 
 
-def run(config_path):    
+def run(config_path=None):    
     CONFIG = get_config(config_path)
     logging.basicConfig()
     LOGGER.setLevel(logging.INFO)

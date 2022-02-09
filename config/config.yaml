@@ -2,42 +2,42 @@ common:
   datasets:
     oxford:
       url: https://raw.githubusercontent.com/OxCGRT/covid-policy-tracker/master/data/timeseries/OxCGRT_timeseries_all.xlsx
-      raw: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/oxford_pandemic_measures/OxCGRT_timeseries_all.xlsx
-      processed: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/oxford.csv
+      raw: /covidsim-data/data/oxford_pandemic_measures/OxCGRT_timeseries_all.xlsx
+      processed: /covidsim-data/data/processed/oxford.csv
     cases_death:
       url:
         cases: https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv
         deaths: https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv
       raw:
-        cases: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/jhu_confirmed_death/time_series_covid19_confirmed_global.csv
-        deaths: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/jhu_confirmed_death/time_series_covid19_deaths_global.csv
-      processed: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/confirmed_cases.csv
+        cases: /covidsim-data/data/jhu_confirmed_death/time_series_covid19_confirmed_global.csv
+        deaths: /covidsim-data/data/jhu_confirmed_death/time_series_covid19_deaths_global.csv
+      processed: /covidsim-data/data/processed/confirmed_cases.csv
     gmobility:
       url: https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv
-      raw: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/Global_Mobility_Report.csv
-      processed: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/gmobility.csv
+      raw: /covidsim-data/data/Global_Mobility_Report.csv
+      processed: /covidsim-data/data/processed/gmobility.csv
     demographic:
-      raw: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/demographic
-      processed: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/demographic.csv
+      raw: /covidsim-data/data/demographic
+      processed: /covidsim-data/data/processed/demographic.csv
     country_metrics:
-      raw: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/metrics_country.csv
-      processed: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/country_metrics.csv
+      raw: /covidsim-data/data/metrics_country.csv
+      processed: /covidsim-data/data/processed/country_metrics.csv
     rt_estimation:
-      processed: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/rt_estimation.csv
+      processed: /covidsim-data/data/processed/rt_estimation.csv
     features:
-      processed: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/features.csv
+      processed: /covidsim-data/data/processed/features.csv
     ml:
-      processed: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/ml
+      processed: /covidsim-data/data/processed/ml
 
   paths:
-    oxford: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/oxford_pandemic_measures/OxCGRT_timeseries_all.xlsx
-    gmobility: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/Global_Mobility_Report.csv
-    country_metrics: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/metrics_country.csv
-    population: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/raw/demographic
-    features: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/features.csv
-    seirhcd: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/seirhcd.csv
-    ml_features: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/ml_features.csv
-    test_rt_luxembourg: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/test/luxembourg_rt.csv
+    oxford: /covidsim-data/data/oxford_pandemic_measures/OxCGRT_timeseries_all.xlsx
+    gmobility: /covidsim-data/data/Global_Mobility_Report.csv
+    country_metrics: /covidsim-data/data/metrics_country.csv
+    population: /covidsim-data/data/demographic
+    features: /covidsim-data/data/processed/features.csv
+    seirhcd: /covidsim-data/data/processed/seirhcd.csv
+    ml_features: /covidsim-data/data/processed/ml_features.csv
+    test_rt_luxembourg: /covidsim-data/data/test/luxembourg_rt.csv
 
 estimate_rt:
   countries:
@@ -57,7 +57,7 @@ estimate_rt:
 
 visualise_rt_prediction:
   visualisation_dir: ./doc/validation/rt_prediction
-  ground_truth_dir: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/test
+  ground_truth_dir: /covidsim-data/data/test
   countries:
     - Luxembourg
 
@@ -65,7 +65,7 @@ split_data:
   seed: 2003
   test_size: 0.2
   target: R
-  dir: /Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed/ml
+  dir: /covidsim-data/data/processed/ml
 
 train_model:
   iterations: 5

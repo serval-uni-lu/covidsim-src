@@ -1,7 +1,7 @@
 import yaml
 import sys
 
-DEFAULT_CONFIG = "./covidsim_model/config/config.yaml"
+DEFAULT_CONFIG = "./config/config.yaml"
 
 
 def get_config(config_path=None):
