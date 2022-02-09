@@ -1,22 +1,18 @@
 # Covidsim imports
 
-from covidsim_model.src.datasets import cases_death_process
-from covidsim_model.src.datasets import country_metrics_process
-from covidsim_model.src.datasets import demographic_process
-from covidsim_model.src.datasets import gmobility_process
-from covidsim_model.src.datasets import oxford_process
 import pandas as pd
 import os
 # [START import_module]
 from datetime import datetime, timedelta
 from textwrap import dedent
-
+from docker.types import Mount
 # The DAG object; we'll need this to instantiate a DAG
 from airflow import DAG
 
 # Operators; we need this to operate!
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
+from airflow.providers.docker.operators.docker import DockerOperator
 
 # [END import_module]
 
@@ -50,71 +46,78 @@ default_args = {
 # [START instantiate_dag]
 
 _data_root = "/Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/data/processed"
-
-def _get_csv_as_dataframe(input_base, name):
-    return pd.read_csv(os.path.join(input_base, name + '.csv'), low_memory=False)
-
-def merge_results():
-    oxford = _get_csv_as_dataframe(_data_root, 'oxford')
-    gmobility = _get_csv_as_dataframe(_data_root, 'gmobility')
-    demographic = _get_csv_as_dataframe(_data_root, 'demographic')
- #   rt_estimation = _get_csv_as_dataframe(_data_root, 'rt_estimation')
-    country_metrics = _get_csv_as_dataframe(_data_root, 'country_metrics')
-
-    out = pd.merge(oxford, gmobility, how="inner", on=["CountryName", "Date"])
-#    out = pd.merge(out, rt_estimation, how="inner", on=["CountryName", "Date"])
-    out = pd.merge(out, demographic, how="inner", on=["CountryName"])
-    out = pd.merge(out, country_metrics, how="inner", on=["CountryName"])
-
-    merged_data_dir = os.path.join(_data_root, 'merged')
-
-    if not os.path.exists(merged_data_dir):
-        os.mkdir(merged_data_dir)
-
-    out.to_csv(os.path.join(merged_data_dir, 'data.csv'), index=False)
-
-
-
+dags_path = "/home/idoml/airflow/dags"
+data_repo = "covidsim-data"
+src_repo = "covidsim-src"
 with DAG(
-    'covidsim_etl',
+    'covidsim_feature_extraction',
     default_args=default_args,
     description='DAG containing the ETL operation for the covidsim model',
     schedule_interval=timedelta(days=1),
     start_date=datetime(2021, 1, 1),
     catchup=False,
-    tags=['covidsim','ETL'],
+    tags=['covidsim','dvc'],
 ) as dag:
     # [END instantiate_dag]
-
-    t1 = PythonOperator(
-            task_id = "case_death_computation",
-            python_callable = cases_death_process.run,
-            op_kwargs = {'config_path':'/Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/config/config.yaml'}
+    t1 = DockerOperator(
+            task_id = "dvc_pull",
+            image = "python:3.8.6",
+            api_version = "auto",
+            command = "sh script.sh ",# pitfall of airflow, should contain a space at the end
+            auto_remove=True,
+            network_mode='host',
+            working_dir=f"/{data_repo}",
+            mounts=[Mount(target=f"/{data_repo}",source=f"{dags_path}/{data_repo}",type='bind')]
             )
-    t2 = PythonOperator(
-            python_callable = country_metrics_process.run,
-            task_id = "country_metrics_process",
-            op_kwargs = {'config_path':'/Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/config/config.yaml'}
-            )
-    t3 = PythonOperator(
-            python_callable = demographic_process.run,
-            task_id = "demographic_process",
-            op_kwargs = {'config_path':'/Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/config/config.yaml'}
-            )
-    t4 = PythonOperator(
-            python_callable = gmobility_process.run,
-            task_id = "gmobility_process",
-            op_kwargs = {'config_path':'/Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/config/config.yaml'}
-            )
-    t5 = PythonOperator(
-            python_callable = oxford_process.run,
+    t2 = DockerOperator(
             task_id = "oxford_process",
-            op_kwargs = {'config_path':'/Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/config/config.yaml'}
+            image = "python:3.8.6",
+            api_version = "auto",
+            command = "sh data_process.sh oxford ",# pitfall of airflow, should contain a space at the end
+            auto_remove=True,
+            network_mode='host',
+            working_dir=f"/{src_repo}",
+            mounts=[Mount(target=f"/{src_repo}",source=f"{dags_path}/{src_repo}",type='bind'),Mount(target=f"/{data_repo}",source=f"{dags_path}/{data_repo}",type='bind')]
             )
-    t6 = PythonOperator(
-            python_callable = merge_results,
-            task_id = "fat_merge",
-            op_kwargs = {'config_path':'/Users/adriano.franci/projects/idoml/airflow/dags/covidsim_model/config/config.yaml'}
+    t3 = DockerOperator(
+            task_id = "cases_death_process",
+            image = "python:3.8.6",
+            api_version = "auto",
+            command = "sh data_process.sh cases_death ",# pitfall of airflow, should contain a space at the end
+            auto_remove=True,
+            network_mode='host',
+            working_dir=f"/{src_repo}",
+            mounts=[Mount(target=f"/{src_repo}",source=f"{dags_path}/{src_repo}",type='bind'),Mount(target=f"/{data_repo}",source=f"{dags_path}/{data_repo}",type='bind')]
             )
-    
-    t6.set_upstream([t1,t2,t3,t4,t5])
+    t4 = DockerOperator(
+            task_id = "gmobility_process",
+            image = "python:3.8.6",
+            api_version = "auto",
+            command = "sh data_process.sh gmobility ",# pitfall of airflow, should contain a space at the end
+            auto_remove=True,
+            network_mode='host',
+            working_dir=f"/{src_repo}",
+            mounts=[Mount(target=f"/{src_repo}",source=f"{dags_path}/{src_repo}",type='bind'),Mount(target=f"/{data_repo}",source=f"{dags_path}/{data_repo}",type='bind')]
+            )
+    t5 = DockerOperator(
+            task_id = "demographic_process",
+            image = "python:3.8.6",
+            api_version = "auto",
+            command = "sh data_process.sh demographic ",# pitfall of airflow, should contain a space at the end
+            auto_remove=True,
+            network_mode='host',
+            working_dir=f"/{src_repo}",
+            mounts=[Mount(target=f"/{src_repo}",source=f"{dags_path}/{src_repo}",type='bind'),Mount(target=f"/{data_repo}",source=f"{dags_path}/{data_repo}",type='bind')]
+            )
+
+    t6 = DockerOperator(
+            task_id = "country_metrics_process",
+            image = "python:3.8.6",
+            api_version = "auto",
+            command = "sh data_process.sh country_metrics ",# pitfall of airflow, should contain a space at the end
+            auto_remove=True,
+            network_mode='host',
+            working_dir=f"/{src_repo}",
+            mounts=[Mount(target=f"/{src_repo}",source=f"{dags_path}/{src_repo}",type='bind'),Mount(target=f"/{data_repo}",source=f"{dags_path}/{data_repo}",type='bind')]
+            )
+    t1 >> [t2,t3,t4,t5,t6]
