@@ -13,11 +13,11 @@ import datetime as DT
 # We create an array for every possible value of Rt
 R_T_MAX = 10
 r_t_range = np.linspace(0, R_T_MAX, R_T_MAX * 100 + 1)
-
 # Gamma is 1/serial interval
 # https://wwwnc.cdc.gov/eid/article/26/7/20-0282_article
 # https://www.nejm.org/doi/full/10.1056/NEJMoa2001316
-GAMMA = 1 / 10
+GAMMA = 1 / 3
+rng = np.random.RandomState(2021)
 
 
 def highest_density_interval(pmf, p=.9, debug=False):
@@ -34,12 +34,19 @@ def highest_density_interval(pmf, p=.9, debug=False):
     # Return all indices with total_p > p
     lows, highs = (total_p > p).nonzero()
 
+    # Check to return Nan if the lows and highs can not be calculated because maximum likelihood Rt is < p
+    if len(lows) is 0 :
+        return pd.Series([np.NaN, np.NaN],
+                     index=[f'Low_{p * 100:.0f}',
+                            f'High_{p * 100:.0f}'])
+
     # Find the smallest range (highest density)
     best = (highs - lows).argmin()
 
     low = pmf.index[lows[best]]
     high = pmf.index[highs[best]]
 
+    # print(f"{low}::{high}")
     return pd.Series([low, high],
                      index=[f'Low_{p * 100:.0f}',
                             f'High_{p * 100:.0f}'])
@@ -67,9 +74,10 @@ def prepare_cases(cases, cutoff=25):
 
 def get_posteriors(sr, date, sigma=0.15):
     # (1) Calculate Lambda
-    gamma = 1 / np.random.normal(4, 0.2, len(r_t_range))
+
+    gamma = 1 / rng.normal(4, 0.2, len(r_t_range))
     lam = sr[:-1] * np.exp(gamma[:, None] * (r_t_range[:, None] - 1))
-    # lam = sr[:-1].values * np.exp(GAMMA * (r_t_range[:, None] - 1))
+    # lam = sr[:-1] * np.exp(GAMMA * (r_t_range[:, None] - 1))
 
     # (2) Calculate each day's likelihood
     likelihoods = pd.DataFrame(
