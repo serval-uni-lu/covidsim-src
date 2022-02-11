@@ -2,12 +2,12 @@ import logging
 
 from joblib import Parallel, delayed
 
-from helpers.bayesian_fit import fit_model as fit_bayesian
+from src.helpers.bayesian_fit import fit_model as fit_bayesian
 
 from pandas.core.common import SettingWithCopyWarning
 from tqdm import tqdm
 
-from utils.config_loader import get_config
+from src.utils.config_loader import get_config
 import pandas as pd
 
 LOGGER = logging.getLogger()

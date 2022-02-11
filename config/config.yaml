@@ -28,7 +28,7 @@ common:
       processed: /covidsim-data/data/processed/features.csv
     ml:
       processed: /covidsim-data/data/processed/ml
-
+      dataset: /covidsim-data/data/processed/dataset.csv
   paths:
     oxford: /covidsim-data/data/oxford_pandemic_measures/OxCGRT_timeseries_all.xlsx
     gmobility: /covidsim-data/data/Global_Mobility_Report.csv

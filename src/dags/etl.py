@@ -50,7 +50,7 @@ dags_path = "/home/idoml/airflow/dags"
 data_repo = "covidsim-data"
 src_repo = "covidsim-src"
 with DAG(
-    'covidsim_feature_extraction',
+    'Covidsim_DAG',
     default_args=default_args,
     description='DAG containing the ETL operation for the covidsim model',
     schedule_interval=timedelta(days=1),
@@ -59,9 +59,9 @@ with DAG(
     tags=['covidsim','dvc'],
 ) as dag:
     # [END instantiate_dag]
-    t1 = DockerOperator(
+    dvc_pull = DockerOperator(
             task_id = "dvc_pull",
-            image = "python:3.8.6",
+            image = "covidsim:latest",
             api_version = "auto",
             command = "sh script.sh ",# pitfall of airflow, should contain a space at the end
             auto_remove=True,
@@ -69,9 +69,9 @@ with DAG(
             working_dir=f"/{data_repo}",
             mounts=[Mount(target=f"/{data_repo}",source=f"{dags_path}/{data_repo}",type='bind')]
             )
-    t2 = DockerOperator(
+    oxford_process = DockerOperator(
             task_id = "oxford_process",
-            image = "python:3.8.6",
+            image = "covidsim:latest",
             api_version = "auto",
             command = "sh data_process.sh oxford ",# pitfall of airflow, should contain a space at the end
             auto_remove=True,
@@ -79,9 +79,9 @@ with DAG(
             working_dir=f"/{src_repo}",
             mounts=[Mount(target=f"/{src_repo}",source=f"{dags_path}/{src_repo}",type='bind'),Mount(target=f"/{data_repo}",source=f"{dags_path}/{data_repo}",type='bind')]
             )
-    t3 = DockerOperator(
+    cases_death_process = DockerOperator(
             task_id = "cases_death_process",
-            image = "python:3.8.6",
+            image = "covidsim:latest",
             api_version = "auto",
             command = "sh data_process.sh cases_death ",# pitfall of airflow, should contain a space at the end
             auto_remove=True,
@@ -89,9 +89,9 @@ with DAG(
             working_dir=f"/{src_repo}",
             mounts=[Mount(target=f"/{src_repo}",source=f"{dags_path}/{src_repo}",type='bind'),Mount(target=f"/{data_repo}",source=f"{dags_path}/{data_repo}",type='bind')]
             )
-    t4 = DockerOperator(
+    gmobility_process = DockerOperator(
             task_id = "gmobility_process",
-            image = "python:3.8.6",
+            image = "covidsim:latest",
             api_version = "auto",
             command = "sh data_process.sh gmobility ",# pitfall of airflow, should contain a space at the end
             auto_remove=True,
@@ -99,9 +99,9 @@ with DAG(
             working_dir=f"/{src_repo}",
             mounts=[Mount(target=f"/{src_repo}",source=f"{dags_path}/{src_repo}",type='bind'),Mount(target=f"/{data_repo}",source=f"{dags_path}/{data_repo}",type='bind')]
             )
-    t5 = DockerOperator(
+    demographic_process = DockerOperator(
             task_id = "demographic_process",
-            image = "python:3.8.6",
+            image = "covidsim:latest",
             api_version = "auto",
             command = "sh data_process.sh demographic ",# pitfall of airflow, should contain a space at the end
             auto_remove=True,
@@ -110,9 +110,9 @@ with DAG(
             mounts=[Mount(target=f"/{src_repo}",source=f"{dags_path}/{src_repo}",type='bind'),Mount(target=f"/{data_repo}",source=f"{dags_path}/{data_repo}",type='bind')]
             )
 
-    t6 = DockerOperator(
+    country_metrics_process = DockerOperator(
             task_id = "country_metrics_process",
-            image = "python:3.8.6",
+            image = "covidsim:latest",
             api_version = "auto",
             command = "sh data_process.sh country_metrics ",# pitfall of airflow, should contain a space at the end
             auto_remove=True,
@@ -120,4 +120,27 @@ with DAG(
             working_dir=f"/{src_repo}",
             mounts=[Mount(target=f"/{src_repo}",source=f"{dags_path}/{src_repo}",type='bind'),Mount(target=f"/{data_repo}",source=f"{dags_path}/{data_repo}",type='bind')]
             )
-    t1 >> [t2,t3,t4,t5,t6]
+
+    estimate_rt= DockerOperator(
+            task_id = "estimate_rt",
+            image = "covidsim:latest",
+            api_version = "auto",
+            command = "sh rt_process.sh ",# pitfall of airflow, should contain a space at the end
+            auto_remove=True,
+            network_mode='host',
+            working_dir=f"/{src_repo}",
+            mounts=[Mount(target=f"/{src_repo}",source=f"{dags_path}/{src_repo}",type='bind'),Mount(target=f"/{data_repo}",source=f"{dags_path}/{data_repo}",type='bind')]
+            )
+    merge_outputs= DockerOperator(
+            task_id = "merge_outputs",
+            image = "covidsim:latest",
+            api_version = "auto",
+            command = "sh merge_process.sh ",# pitfall of airflow, should contain a space at the end
+            auto_remove=True,
+            network_mode='host',
+            working_dir=f"/{src_repo}",
+            mounts=[Mount(target=f"/{src_repo}",source=f"{dags_path}/{src_repo}",type='bind'),Mount(target=f"/{data_repo}",source=f"{dags_path}/{data_repo}",type='bind')]
+            )
+
+    dvc_pull >> [oxford_process,country_metrics_process,demographic_process,gmobility_process] >> merge_outputs
+    dvc_pull >> cases_death_process >> estimate_rt >> merge_outputs
