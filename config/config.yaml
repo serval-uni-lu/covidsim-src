@@ -2,42 +2,42 @@ common:
   datasets:
     oxford:
       url: https://raw.githubusercontent.com/OxCGRT/covid-policy-tracker/master/data/timeseries/OxCGRT_timeseries_all.xlsx
-      raw: /covidsim-data/data/oxford_pandemic_measures/OxCGRT_timeseries_all.xlsx
-      processed: /covidsim-data/data/processed/oxford.csv
+      raw: /opt/airflow/dags/covidsim-data/data/oxford_pandemic_measures/OxCGRT_timeseries_all.xlsx
+      processed: /opt/airflow/dags/covidsim-data/data/processed/oxford.csv
     cases_death:
       url:
         cases: https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv
         deaths: https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv
       raw:
-        cases: /covidsim-data/data/jhu_confirmed_death/time_series_covid19_confirmed_global.csv
-        deaths: /covidsim-data/data/jhu_confirmed_death/time_series_covid19_deaths_global.csv
-      processed: /covidsim-data/data/processed/confirmed_cases.csv
+        cases: /opt/airflow/dags/covidsim-data/data/jhu_confirmed_death/time_series_covid19_confirmed_global.csv
+        deaths: /opt/airflow/dags/covidsim-data/data/jhu_confirmed_death/time_series_covid19_deaths_global.csv
+      processed: /opt/airflow/dags/covidsim-data/data/processed/confirmed_cases.csv
     gmobility:
       url: https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv
-      raw: /covidsim-data/data/Global_Mobility_Report.csv
-      processed: /covidsim-data/data/processed/gmobility.csv
+      raw: /opt/airflow/dags/covidsim-data/data/Global_Mobility_Report.csv
+      processed: /opt/airflow/dags/covidsim-data/data/processed/gmobility.csv
     demographic:
-      raw: /covidsim-data/data/demographic
-      processed: /covidsim-data/data/processed/demographic.csv
+      raw: /opt/airflow/dags/covidsim-data/data/demographic
+      processed: /opt/airflow/dags/covidsim-data/data/processed/demographic.csv
     country_metrics:
-      raw: /covidsim-data/data/metrics_country.csv
-      processed: /covidsim-data/data/processed/country_metrics.csv
+      raw: /opt/airflow/dags/covidsim-data/data/metrics_country.csv
+      processed: /opt/airflow/dags/covidsim-data/data/processed/country_metrics.csv
     rt_estimation:
-      processed: /covidsim-data/data/processed/rt_estimation.csv
+      processed: /opt/airflow/dags/covidsim-data/data/processed/rt_estimation.csv
     features:
-      processed: /covidsim-data/data/processed/features.csv
+      processed: /opt/airflow/dags/covidsim-data/data/processed/features.csv
     ml:
-      processed: /covidsim-data/data/processed/ml
-      dataset: /covidsim-data/data/processed/dataset.csv
+      processed: /opt/airflow/dags/covidsim-data/data/processed/ml
+      dataset: /opt/airflow/dags/covidsim-data/data/processed/dataset.csv
   paths:
-    oxford: /covidsim-data/data/oxford_pandemic_measures/OxCGRT_timeseries_all.xlsx
-    gmobility: /covidsim-data/data/Global_Mobility_Report.csv
-    country_metrics: /covidsim-data/data/metrics_country.csv
-    population: /covidsim-data/data/demographic
-    features: /covidsim-data/data/processed/features.csv
-    seirhcd: /covidsim-data/data/processed/seirhcd.csv
-    ml_features: /covidsim-data/data/processed/ml_features.csv
-    test_rt_luxembourg: /covidsim-data/data/test/luxembourg_rt.csv
+    oxford: /opt/airflow/dags/covidsim-data/data/oxford_pandemic_measures/OxCGRT_timeseries_all.xlsx
+    gmobility: /opt/airflow/dags/covidsim-data/data/Global_Mobility_Report.csv
+    country_metrics: /opt/airflow/dags/covidsim-data/data/metrics_country.csv
+    population: /opt/airflow/dags/covidsim-data/data/demographic
+    features: /opt/airflow/dags/covidsim-data/data/processed/features.csv
+    seirhcd: /opt/airflow/dags/covidsim-data/data/processed/seirhcd.csv
+    ml_features: /opt/airflow/dags/covidsim-data/data/processed/ml_features.csv
+    test_rt_luxembourg: /opt/airflow/dags/covidsim-data/data/test/luxembourg_rt.csv
 
 estimate_rt:
   countries:
@@ -57,7 +57,7 @@ estimate_rt:
 
 visualise_rt_prediction:
   visualisation_dir: ./doc/validation/rt_prediction
-  ground_truth_dir: /covidsim-data/data/test
+  ground_truth_dir: /opt/airflow/dags/covidsim-data/data/test
   countries:
     - Luxembourg
 
@@ -65,7 +65,7 @@ split_data:
   seed: 2003
   test_size: 0.2
   target: R
-  dir: /covidsim-data/data/processed/ml
+  dir: /opt/airflow/dags/covidsim-data/data/processed/ml
 
 train_model:
   iterations: 5

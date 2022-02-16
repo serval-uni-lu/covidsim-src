@@ -24,10 +24,10 @@ def merge_results():
     out.to_csv(os.path.join(merged_data_dir, 'data.csv'), index=False)
 
 def run():
-    df = load_dataset()
-    df = df.dropna()
-    df.to_csv(CONFIG["common"]["paths"]["ml_features"])
-
+    # df = load_dataset()
+    # df = df.dropna()
+    # df.to_csv(CONFIG["common"]["paths"]["ml_features"])
+    merge_results()
 
 if __name__ == "__main__":
     run()
