@@ -11,7 +11,7 @@ def _get_csv_as_dataframe(name):
     return pd.read_csv(f"{CONFIG['common']['datasets'][name]['processed']}",low_memory=False)
 
 
-def merge_results():
+def run():
     oxford = _get_csv_as_dataframe( 'oxford')
 
     gmobility = _get_csv_as_dataframe( 'gmobility')
@@ -34,5 +34,5 @@ def merge_results():
 if __name__ == "__main__":
     LOGGER.setLevel(logging.INFO)
     LOGGER.info("Start...")
-    merge_results()
+    run()
     LOGGER.info("Merge done")

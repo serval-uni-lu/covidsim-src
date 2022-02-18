@@ -28,7 +28,7 @@ common:
       processed: /opt/airflow/dags/covidsim-data/data/processed/features.csv
     ml:
       processed: /opt/airflow/dags/covidsim-data/data/processed/ml
-      dataset: /opt/airflow/dags/covidsim-data/data/processed/dataset.csv
+      dataset: /opt/airflow/dags/covidsim-data/data/dataset/dataset.csv
   paths:
     oxford: /opt/airflow/dags/covidsim-data/data/oxford_pandemic_measures/OxCGRT_timeseries_all.xlsx
     gmobility: /opt/airflow/dags/covidsim-data/data/Global_Mobility_Report.csv

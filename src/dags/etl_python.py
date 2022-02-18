@@ -63,20 +63,12 @@ with DAG(
         from dvc.repo import Repo
         repo = Repo(f"{os.getenv('AIRFLOW_HOME')}/dags/{data_repo}")
         repo.pull()
-        
-    
-    def case_death_process():
-        os.chdir(f"{os.getenv('AIRFLOW_HOME')}/dags/{src_repo}")
-        import sys
-        sys.path.append(f"{os.getenv('AIRFLOW_HOME')}/dags/{src_repo}")
-        from src.datasets.cases_death_process import run
-        run()
 
-    def data_process(raw_ds):
+    def data_process(script):
         os.chdir(f"{os.getenv('AIRFLOW_HOME')}/dags/{src_repo}")
         import sys,importlib
         sys.path.append(f"{os.getenv('AIRFLOW_HOME')}/dags/{src_repo}")
-        module = importlib.import_module(f"src.datasets.{raw_ds}")
+        module = importlib.import_module(f"src.{script}")
         getattr(module,'run')()
 
     dvcp_pull = PythonOperator(
@@ -86,11 +78,38 @@ with DAG(
     cd_process = PythonOperator(
             task_id = "case_death_process",
             python_callable = data_process,
-            op_args = ["cases_death_process"])
+            op_args = ["datasets.cases_death_process"])
 
     gmobility_process = PythonOperator(
             task_id = "gmobility_process",
             python_callable = data_process,
-            op_args = ["gmobility_process"])
+            op_args = ["datasets.gmobility_process"])
+
+    country_metrics_process = PythonOperator(
+            task_id = "country_metrics_process",
+            python_callable = data_process,
+            op_args = ["datasets.country_metrics_process"])
+
+    oxford_process = PythonOperator(
+            task_id = "oxford_process",
+            python_callable = data_process,
+            op_args = ["datasets.oxford_process"])
+
+    demographic_process = PythonOperator(
+            task_id = "demographic_process",
+            python_callable = data_process,
+            op_args = ["datasets.demographic_process"])
+
+    rt_estimate = PythonOperator(
+            task_id = "rt_estimate",
+            python_callable = data_process,
+            op_args = ['estimate_rt']
+            )
     
-    dvcp_pull >> [cd_process,gmobility_process]
+    merge_datasets = PythonOperator(
+            task_id = "merge_datasets",
+            python_callable = data_process,
+            op_args = ['create_dataset'])
+
+    dvcp_pull >> [gmobility_process,oxford_process,demographic_process,country_metrics_process] >> merge_datasets
+    dvcp_pull >> cd_process >> rt_estimate >> merge_datasets 
